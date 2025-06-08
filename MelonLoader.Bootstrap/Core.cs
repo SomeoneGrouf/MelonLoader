@@ -69,27 +69,10 @@ public static class Core
 #endif
     }
 
-
-    private static readonly Il2CppLib.InitFn Il2CPPInitDetour = Il2CppHandler.InitDetour;
-    private static readonly Il2CppLib.RuntimeInvokeFn InvokeDetour = Il2CppHandler.InvokeDetour;
-    private static readonly MonoLib.JitInitVersionFn MonoInitDetour = MonoHandler.InitDetour;
-    private static readonly MonoLib.JitParseOptionsFn JitParseOptionsDetour = MonoHandler.JitParseOptionsDetour;
-    private static readonly MonoLib.DebugInitFn DebugInitDetour = MonoHandler.DebugInitDetour;
-    private static readonly unsafe MonoLib.ImageOpenFromDataWithNameFn ImageOpenFromDataWithName = MonoHandler.ImageOpenFromDataWithNameDetour;
-
-    private static readonly Dictionary<string, (Action<nint> InitMethod, IntPtr detourPtr)> SymbolRedirects = new()
-    {
-        { "il2cpp_init", (Il2CppHandler.Initialize, Marshal.GetFunctionPointerForDelegate(Il2CPPInitDetour))},
-        { "il2cpp_runtime_invoke", (Il2CppHandler.Initialize, Marshal.GetFunctionPointerForDelegate(InvokeDetour))},
-        { "mono_jit_init_version", (MonoHandler.Initialize, Marshal.GetFunctionPointerForDelegate(MonoInitDetour))},
-        { "mono_jit_parse_options", (MonoHandler.Initialize, Marshal.GetFunctionPointerForDelegate(JitParseOptionsDetour))},
-        { "mono_debug_init", (MonoHandler.Initialize, Marshal.GetFunctionPointerForDelegate(DebugInitDetour))},
-        { "mono_image_open_from_data_with_name", (MonoHandler.Initialize, Marshal.GetFunctionPointerForDelegate(ImageOpenFromDataWithName))}
-    };
-
     private static nint RedirectSymbol(nint handle, string symbolName, nint originalSymbolAddress)
     {
-        if (!SymbolRedirects.TryGetValue(symbolName, out var redirect))
+        if (!MonoHandler.SymbolRedirects.TryGetValue(symbolName, out var redirect)
+            && !Il2CppHandler.SymbolRedirects.TryGetValue(symbolName, out redirect))
             return originalSymbolAddress;
 
         MelonDebug.Log($"Redirecting {symbolName}");
