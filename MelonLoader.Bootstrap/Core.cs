@@ -97,18 +97,23 @@ public static class Core
     }
 #endif
 
+#if OSX
+    private static string GetParentDirectory(string path, int level)
+    {
+        string parentPath = path;
+        for (int i = 0; i < level; i++)
+            parentPath = Path.GetDirectoryName(parentPath)!;
+        return parentPath;
+    }
+#endif
+
     [RequiresDynamicCode("Dynamically accesses LoaderConfig properties")]
     private static void InitConfig()
     {
         var customBaseDir = ArgParser.GetValue("melonloader.basedir");
-        var baseDir = 
+        var baseDir = Path.GetDirectoryName(Environment.ProcessPath)!;
 #if OSX
-            Path.GetDirectoryName(
-                Path.GetDirectoryName(
-                    Path.GetDirectoryName(
-                        Path.GetDirectoryName(Process.GetCurrentProcess().MainModule!.FileName)!))!)!;
-#else
-            Path.GetDirectoryName(Process.GetCurrentProcess().MainModule!.FileName)!;
+        baseDir = GetParentDirectory(baseDir, 3);
 #endif
         if (Directory.Exists(customBaseDir))
             baseDir = Path.GetFullPath(customBaseDir);
