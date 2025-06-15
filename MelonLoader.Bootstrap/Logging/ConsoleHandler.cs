@@ -1,6 +1,7 @@
 ﻿using MelonLoader.Logging;
 using System.Runtime.InteropServices;
 using System.Text;
+using MelonLoader.Bootstrap.Utils;
 
 namespace MelonLoader.Bootstrap;
 
@@ -31,7 +32,7 @@ internal static class ConsoleHandler
         // On Wine, we always want to show the window because it's possible the handle isn't null due to Wine itself
         var consoleWindow = WindowsNative.GetConsoleWindow();
         var stdOut = WindowsNative.GetStdHandle(WindowsNative.StdOutputHandle);
-        if (consoleWindow == 0 && (stdOut == 0 || IsWine()))
+        if (consoleWindow == 0 && (stdOut == 0 || WineUtils.IsWine))
         {
             WindowsNative.AllocConsole();
             consoleWindow = WindowsNative.GetConsoleWindow();
@@ -76,16 +77,6 @@ internal static class ConsoleHandler
 
         IsOpen = true;
     }
-
-#if WINDOWS
-    private static bool IsWine()
-    {
-        if (!NativeLibrary.TryLoad("ntdll.dll", out var handle))
-            return false;
-        bool isWine = NativeLibrary.TryGetExport(handle, "wine_get_version", out _);
-        return isWine;
-    }
-#endif
 
     public static void NullHandles()
     {
