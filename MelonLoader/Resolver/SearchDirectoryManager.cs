@@ -80,7 +80,7 @@ internal static class SearchDirectoryManager
 
             MelonDebug.Msg($"[MelonAssemblyResolver] Loading {requestedName} from {filepath}...");
 
-#if NET6_0_OR_GREATERs
+#if NET6_0_OR_GREATER
             return AssemblyLoadContext.Default.LoadFromAssemblyPath(filepath);
 #else
             return Assembly.LoadFrom(filepath);
