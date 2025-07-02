@@ -79,11 +79,6 @@ internal static class ProxyMap
             FileName = "winhttp",
             ProxyFuncs = typeof(WinHTTPExports),
         },
-        new()
-        {
-            FileName = "winmm",
-            ProxyFuncs = typeof(WinMMExports),
-        },
     ];
 }
 #endif
